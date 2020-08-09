@@ -1,0 +1,26 @@
+name: CI
+on:
+  push:
+    paths:
+    - '**.zig'
+  pull_request:
+    paths:
+    - '**.zig'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: install software
+      run: |
+        ZIG=$(wget --quiet --output-document=- https://ziglang.org/download/index.json | jq --raw-output '.master."x86_64-linux".tarball')
+        echo installing $ZIG into ./zig/
+        wget --quiet --output-document=- $ZIG | tar Jx
+        mv zig-linux-x86_64-* zig
+        echo zig version $(./zig/zig version)
+        git submodule update --init --recursive
+    - name: build
+      run: |
+        export PATH=./zig:$PATH
+        zig build test
