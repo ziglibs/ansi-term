@@ -43,8 +43,15 @@ pub fn parseStyle(code: []const u8) ?Style {
                 switch (part) {
                     0 => font_style = FontStyle.default,
                     1 => font_style.bold = true,
+                    2 => font_style.dim = true,
                     3 => font_style.italic = true,
                     4 => font_style.underline = true,
+                    5 => font_style.slowblink = true,
+                    6 => font_style.rapidblink = true,
+                    7 => font_style.reverse = true,
+                    8 => font_style.hidden = true,
+                    9 => font_style.crossedout = true,
+                    20 => font_style.fraktur = true,
                     30 => foreground = Color.Black,
                     31 => foreground = Color.Red,
                     32 => foreground = Color.Green,
@@ -65,6 +72,7 @@ pub fn parseStyle(code: []const u8) ?Style {
                     47 => background = Color.White,
                     48 => state = ParseState.ParseBgNon8,
                     49 => background = null,
+                    53 => font_style.overline = true,
                     else => {
                         return null;
                     },

@@ -1,4 +1,5 @@
 const std = @import("std");
+const meta = std.meta;
 const expect = std.testing.expect;
 const expectEqual = std.testing.expectEqual;
 
@@ -10,9 +11,7 @@ pub const ColorRGB = struct {
     const Self = @This();
 
     pub fn eql(self: Self, other: Self) bool {
-        return self.r == other.r and
-            self.g == other.g and
-            self.b == other.b;
+        return meta.eql(self, other);
     }
 };
 
@@ -31,66 +30,199 @@ pub const Color = union(enum) {
     const Self = @This();
 
     pub fn eql(self: Self, other: Self) bool {
-        return switch (self) {
-            .Black => other == .Black,
-            .Red => other == .Red,
-            .Green => other == .Green,
-            .Yellow => other == .Yellow,
-            .Blue => other == .Blue,
-            .Magenta => other == .Magenta,
-            .Cyan => other == .Cyan,
-            .White => other == .White,
-            .Fixed => |x| switch (other) {
-                .Fixed => |y| x == y,
-                else => false,
-            },
-            .RGB => |x| switch (other) {
-                .RGB => |y| x.eql(y),
-                else => false,
-            },
-        };
+        return meta.eql(self, other);
     }
 };
 
 pub const FontStyle = struct {
     bold: bool,
+    dim: bool,
     italic: bool,
     underline: bool,
+    slowblink: bool,
+    rapidblink: bool,
+    reverse: bool,
+    hidden: bool,
+    crossedout: bool,
+    fraktur: bool,
+    overline: bool,
 
     const Self = @This();
 
     pub const default = Self{
         .bold = false,
+        .dim = false,
         .italic = false,
         .underline = false,
+        .slowblink = false,
+        .rapidblink = false,
+        .reverse = false,
+        .hidden = false,
+        .crossedout = false,
+        .fraktur = false,
+        .overline = false,
     };
 
     pub const bold = Self{
         .bold = true,
+        .dim = false,
         .italic = false,
         .underline = false,
+        .slowblink = false,
+        .rapidblink = false,
+        .reverse = false,
+        .hidden = false,
+        .crossedout = false,
+        .fraktur = false,
+        .overline = false,
+    };
+
+    pub const dim = Self{
+        .bold = false,
+        .dim = true,
+        .italic = false,
+        .underline = false,
+        .slowblink = false,
+        .rapidblink = false,
+        .reverse = false,
+        .hidden = false,
+        .crossedout = false,
+        .fraktur = false,
+        .overline = false,
     };
 
     pub const italic = Self{
         .bold = false,
+        .dim = false,
         .italic = true,
         .underline = false,
+        .slowblink = false,
+        .rapidblink = false,
+        .reverse = false,
+        .hidden = false,
+        .crossedout = false,
+        .fraktur = false,
+        .overline = false,
     };
 
     pub const underline = Self{
         .bold = false,
+        .dim = false,
         .italic = false,
         .underline = true,
+        .slowblink = false,
+        .rapidblink = false,
+        .reverse = false,
+        .hidden = false,
+        .crossedout = false,
+        .fraktur = false,
+        .overline = false,
+    };
+
+    pub const slowblink = Self{
+        .bold = false,
+        .dim = false,
+        .italic = false,
+        .underline = false,
+        .slowblink = true,
+        .rapidblink = false,
+        .reverse = false,
+        .hidden = false,
+        .crossedout = false,
+        .fraktur = false,
+        .overline = false,
+    };
+
+    pub const rapidblink = Self{
+        .bold = false,
+        .dim = false,
+        .italic = false,
+        .underline = false,
+        .slowblink = false,
+        .rapidblink = true,
+        .reverse = false,
+        .hidden = false,
+        .crossedout = false,
+        .fraktur = false,
+        .overline = false,
+    };
+
+    pub const reverse = Self{
+        .bold = false,
+        .dim = false,
+        .italic = false,
+        .underline = false,
+        .slowblink = false,
+        .rapidblink = false,
+        .reverse = true,
+        .hidden = false,
+        .crossedout = false,
+        .fraktur = false,
+        .overline = false,
+    };
+
+    pub const hidden = Self{
+        .bold = false,
+        .dim = false,
+        .italic = false,
+        .underline = false,
+        .slowblink = false,
+        .rapidblink = false,
+        .reverse = false,
+        .hidden = true,
+        .crossedout = false,
+        .fraktur = false,
+        .overline = false,
+    };
+
+    pub const crossedout = Self{
+        .bold = false,
+        .dim = false,
+        .italic = false,
+        .underline = false,
+        .slowblink = false,
+        .rapidblink = false,
+        .reverse = false,
+        .hidden = false,
+        .crossedout = true,
+        .fraktur = false,
+        .overline = false,
+    };
+
+    pub const fraktur = Self{
+        .bold = false,
+        .dim = false,
+        .italic = false,
+        .underline = false,
+        .slowblink = false,
+        .rapidblink = false,
+        .reverse = false,
+        .hidden = false,
+        .crossedout = false,
+        .fraktur = true,
+        .overline = false,
+    };
+
+    pub const overline = Self{
+        .bold = false,
+        .dim = false,
+        .italic = false,
+        .underline = false,
+        .slowblink = false,
+        .rapidblink = false,
+        .reverse = false,
+        .hidden = false,
+        .crossedout = false,
+        .fraktur = false,
+        .overline = true,
     };
 
     pub fn isDefault(self: Self) bool {
-        return !self.bold and !self.italic and !self.underline;
+        return meta.eql(self, default);
     }
 
     pub fn eql(self: Self, other: Self) bool {
-        return self.bold == other.bold and
-            self.italic == other.italic and
-            self.underline == other.underline;
+        return meta.eql(self, other);
     }
 };
 
@@ -108,27 +240,7 @@ pub const Style = struct {
     };
 
     pub fn eql(self: Self, other: Self) bool {
-        if (self.foreground) |x| {
-            if (other.foreground) |y| {
-                if (!x.eql(y)) return false;
-            } else {
-                return false;
-            }
-        } else {
-            if (other.foreground) |_| return false;
-        }
-
-        if (self.background) |x| {
-            if (other.background) |y| {
-                if (!x.eql(y)) return false;
-            } else {
-                return false;
-            }
-        } else {
-            if (other.background) |_| return false;
-        }
-
-        return self.font_style.eql(other.font_style);
+        return meta.eql(self, other);
     }
 
     pub fn isDefault(self: Self) bool {
@@ -148,6 +260,8 @@ test "style equality" {
         .background = null,
         .font_style = FontStyle.default,
     };
+
+    expect(a.isDefault());
 
     expect(a.eql(a));
     expect(b.eql(b));
