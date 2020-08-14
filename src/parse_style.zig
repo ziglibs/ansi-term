@@ -26,7 +26,7 @@ pub fn parseStyle(code: []const u8) ?Style {
         return null;
     }
 
-    var font_style = FontStyle.default;
+    var font_style = FontStyle{};
     var foreground: ?Color = null;
     var background: ?Color = null;
 
@@ -41,7 +41,7 @@ pub fn parseStyle(code: []const u8) ?Style {
         switch (state) {
             .Parse8 => {
                 switch (part) {
-                    0 => font_style = FontStyle.default,
+                    0 => font_style = FontStyle{},
                     1 => font_style.bold = true,
                     2 => font_style.dim = true,
                     3 => font_style.italic = true,
@@ -162,8 +162,6 @@ test "parse empty style" {
 test "parse bold style" {
     const actual = parseStyle("01");
     const expected = Style{
-        .foreground = null,
-        .background = null,
         .font_style = FontStyle.bold,
     };
 
@@ -174,8 +172,8 @@ test "parse yellow style" {
     const actual = parseStyle("33");
     const expected = Style{
         .foreground = Color.Yellow,
-        .background = null,
-        .font_style = FontStyle.default,
+
+        .font_style = FontStyle{},
     };
 
     expectEqual(@as(?Style, expected), actual);
@@ -185,7 +183,7 @@ test "parse some fixed color" {
     const actual = parseStyle("38;5;220;1");
     const expected = Style{
         .foreground = Color{ .Fixed = 220 },
-        .background = null,
+
         .font_style = FontStyle.bold,
     };
 
@@ -196,7 +194,7 @@ test "parse some rgb color" {
     const actual = parseStyle("38;2;123;123;123;1");
     const expected = Style{
         .foreground = Color{ .RGB = .{ .r = 123, .g = 123, .b = 123 } },
-        .background = null,
+
         .font_style = FontStyle.bold,
     };
 
