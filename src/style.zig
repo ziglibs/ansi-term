@@ -34,7 +34,7 @@ pub const Color = union(enum) {
     }
 };
 
-pub const FontStyle = struct {
+pub const FontStyle = packed struct {
     bold: bool = false,
     dim: bool = false,
     italic: bool = false,
