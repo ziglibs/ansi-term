@@ -13,7 +13,8 @@ pub const Csi = Esc ++ "[";
 pub const Reset = Csi ++ "0m";
 
 /// Update the current style of the ANSI terminal
-pub fn updateFontStyle(writer: anytype, new: FontStyle, old: ?FontStyle) !void {
+pub fn updateStyle(writer: anytype, new: Style, old: ?Style) !void {
+    // TODO: intelligent, "delta" style update
     if (old) |sty| if (new.eql(sty)) return;
 
     // Start the escape sequence
@@ -21,11 +22,11 @@ pub fn updateFontStyle(writer: anytype, new: FontStyle, old: ?FontStyle) !void {
     var written_something = false;
 
     // Font styles
-    if (value.sty.font_style.bold) {
+    if (new.font_style.bold) {
         written_something = true;
         try writer.writeAll("1");
     }
-    if (value.sty.font_style.dim) {
+    if (new.font_style.dim) {
         if (written_something) {
             try writer.writeAll(";");
         } else {
@@ -33,7 +34,7 @@ pub fn updateFontStyle(writer: anytype, new: FontStyle, old: ?FontStyle) !void {
         }
         try writer.writeAll("2");
     }
-    if (value.sty.font_style.italic) {
+    if (new.font_style.italic) {
         if (written_something) {
             try writer.writeAll(";");
         } else {
@@ -41,7 +42,7 @@ pub fn updateFontStyle(writer: anytype, new: FontStyle, old: ?FontStyle) !void {
         }
         try writer.writeAll("3");
     }
-    if (value.sty.font_style.underline) {
+    if (new.font_style.underline) {
         if (written_something) {
             try writer.writeAll(";");
         } else {
@@ -50,7 +51,7 @@ pub fn updateFontStyle(writer: anytype, new: FontStyle, old: ?FontStyle) !void {
         try writer.writeAll("4");
     }
 
-    if (value.sty.font_style.slowblink) {
+    if (new.font_style.slowblink) {
         if (written_something) {
             try writer.writeAll(";");
         } else {
@@ -59,7 +60,7 @@ pub fn updateFontStyle(writer: anytype, new: FontStyle, old: ?FontStyle) !void {
         try writer.writeAll("5");
     }
 
-    if (value.sty.font_style.rapidblink) {
+    if (new.font_style.rapidblink) {
         if (written_something) {
             try writer.writeAll(";");
         } else {
@@ -68,7 +69,7 @@ pub fn updateFontStyle(writer: anytype, new: FontStyle, old: ?FontStyle) !void {
         try writer.writeAll("6");
     }
 
-    if (value.sty.font_style.reverse) {
+    if (new.font_style.reverse) {
         if (written_something) {
             try writer.writeAll(";");
         } else {
@@ -77,7 +78,7 @@ pub fn updateFontStyle(writer: anytype, new: FontStyle, old: ?FontStyle) !void {
         try writer.writeAll("7");
     }
 
-    if (value.sty.font_style.hidden) {
+    if (new.font_style.hidden) {
         if (written_something) {
             try writer.writeAll(";");
         } else {
@@ -86,7 +87,7 @@ pub fn updateFontStyle(writer: anytype, new: FontStyle, old: ?FontStyle) !void {
         try writer.writeAll("8");
     }
 
-    if (value.sty.font_style.crossedout) {
+    if (new.font_style.crossedout) {
         if (written_something) {
             try writer.writeAll(";");
         } else {
@@ -95,7 +96,7 @@ pub fn updateFontStyle(writer: anytype, new: FontStyle, old: ?FontStyle) !void {
         try writer.writeAll("9");
     }
 
-    if (value.sty.font_style.fraktur) {
+    if (new.font_style.fraktur) {
         if (written_something) {
             try writer.writeAll(";");
         } else {
@@ -104,7 +105,7 @@ pub fn updateFontStyle(writer: anytype, new: FontStyle, old: ?FontStyle) !void {
         try writer.writeAll("20");
     }
 
-    if (value.sty.font_style.overline) {
+    if (new.font_style.overline) {
         if (written_something) {
             try writer.writeAll(";");
         } else {
@@ -114,7 +115,7 @@ pub fn updateFontStyle(writer: anytype, new: FontStyle, old: ?FontStyle) !void {
     }
 
     // Foreground color
-    if (value.sty.foreground) |clr| {
+    if (new.foreground) |clr| {
         if (written_something) {
             try writer.writeAll(";");
         } else {
@@ -136,7 +137,7 @@ pub fn updateFontStyle(writer: anytype, new: FontStyle, old: ?FontStyle) !void {
     }
 
     // Background color
-    if (value.sty.background) |clr| {
+    if (new.background) |clr| {
         if (written_something) {
             try writer.writeAll(";");
         } else {
@@ -159,6 +160,18 @@ pub fn updateFontStyle(writer: anytype, new: FontStyle, old: ?FontStyle) !void {
 
     // End the escape sequence
     try writer.writeAll("m");
+}
+
+test "same style, no update" {
+    var buf: [1024]u8 = undefined;
+    var fixed_buf_stream = fixedBufferStream(&buf);
+
+    try updateStyle(fixed_buf_stream.writer(), Style{}, Style{});
+
+    const expected = "";
+    const actual = fixed_buf_stream.getWritten();
+
+    testing.expectEqualSlices(u8, expected, actual);
 }
 
 pub fn resetStyle(writer: anytype) !void {
