@@ -127,11 +127,17 @@ pub const Style = struct {
     const Self = @This();
 
     pub fn eql(self: Self, other: Self) bool {
-        return meta.eql(self, other);
+        if (!self.font_style.eql(other.font_style))
+            return false;
+
+        if (!meta.eql(self.foreground, other.foreground))
+            return false;
+
+        return meta.eql(self.background, other.background);
     }
 
     pub fn isDefault(self: Self) bool {
-        return meta.eql(self, Self{});
+        return eql(self, Self{});
     }
 };
 
