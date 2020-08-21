@@ -49,6 +49,14 @@ pub const FontStyle = packed struct {
 
     const Self = @This();
 
+    pub fn toU11(self: Self) u11 {
+        return @bitCast(u11, self);
+    }
+
+    pub fn fromU11(bits: u11) Self {
+        return @bitCast(Self, bits);
+    }
+
     pub const bold = Self{
         .bold = true,
     };
@@ -94,13 +102,22 @@ pub const FontStyle = packed struct {
     };
 
     pub fn isDefault(self: Self) bool {
-        return meta.eql(self, Self{});
+        return self.toU11() == 0;
     }
 
     pub fn eql(self: Self, other: Self) bool {
-        return meta.eql(self, other);
+        return self.toU11() == other.toU11();
     }
 };
+
+test "FontStyle bits" {
+    expectEqual(@as(u11, 0), (FontStyle{}).toU11());
+    expectEqual(@as(u11, 1), (FontStyle.bold).toU11());
+    expectEqual(@as(u11, 1 << 2), (FontStyle.italic).toU11());
+    expectEqual(@as(u11, 1 << 2) | 1, (FontStyle{ .bold = true, .italic = true }).toU11());
+    expectEqual(FontStyle{}, FontStyle.fromU11((FontStyle{}).toU11()));
+    expectEqual(FontStyle.bold, FontStyle.fromU11((FontStyle.bold).toU11()));
+}
 
 pub const Style = struct {
     foreground: ?Color = null,
