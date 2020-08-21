@@ -49,14 +49,6 @@ pub const FontStyle = packed struct {
 
     const Self = @This();
 
-    pub fn toU11(self: Self) u11 {
-        return @bitCast(u11, self);
-    }
-
-    pub fn fromU11(bits: u11) Self {
-        return @bitCast(Self, bits);
-    }
-
     pub const bold = Self{
         .bold = true,
     };
@@ -101,12 +93,30 @@ pub const FontStyle = packed struct {
         .overline = true,
     };
 
+    pub fn toU11(self: Self) u11 {
+        return @bitCast(u11, self);
+    }
+
+    pub fn fromU11(bits: u11) Self {
+        return @bitCast(Self, bits);
+    }
+
+    /// Returns true iff this font style contains no attributes
     pub fn isDefault(self: Self) bool {
         return self.toU11() == 0;
     }
 
+    /// Returns true iff these font styles contain exactly the same
+    /// attributes
     pub fn eql(self: Self, other: Self) bool {
         return self.toU11() == other.toU11();
+    }
+
+    /// Returns true iff self is a subset of the attributes of
+    /// other, i.e. all attributes of self are at least present in
+    /// other as well
+    pub fn subsetOf(self: Self, other: Self) bool {
+        return self.toU11() & other.toU11() == self.toU11();
     }
 };
 
@@ -119,6 +129,26 @@ test "FontStyle bits" {
     expectEqual(FontStyle.bold, FontStyle.fromU11((FontStyle.bold).toU11()));
 }
 
+test "FontStyle subsetOf" {
+    const default = FontStyle{};
+    const bold = FontStyle.bold;
+    const italic = FontStyle.italic;
+    const bold_and_italic = FontStyle{ .bold = true, .italic = true };
+
+    expect(default.subsetOf(default));
+    expect(default.subsetOf(bold));
+    expect(bold.subsetOf(bold));
+    expect(!bold.subsetOf(default));
+    expect(!bold.subsetOf(italic));
+    expect(default.subsetOf(bold_and_italic));
+    expect(bold.subsetOf(bold_and_italic));
+    expect(italic.subsetOf(bold_and_italic));
+    expect(bold_and_italic.subsetOf(bold_and_italic));
+    expect(!bold_and_italic.subsetOf(bold));
+    expect(!bold_and_italic.subsetOf(italic));
+    expect(!bold_and_italic.subsetOf(default));
+}
+
 pub const Style = struct {
     foreground: ?Color = null,
     background: ?Color = null,
@@ -126,6 +156,8 @@ pub const Style = struct {
 
     const Self = @This();
 
+    /// Returns true iff this style equals the other style in
+    /// foreground color, background color and font style
     pub fn eql(self: Self, other: Self) bool {
         if (!self.font_style.eql(other.font_style))
             return false;
@@ -136,6 +168,7 @@ pub const Style = struct {
         return meta.eql(self.background, other.background);
     }
 
+    /// Returns true iff this style equals the default set of styles
     pub fn isDefault(self: Self) bool {
         return eql(self, Self{});
     }
