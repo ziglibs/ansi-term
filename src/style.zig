@@ -26,6 +26,7 @@ pub const Color = union(enum) {
     Cyan,
     White,
     Fixed: u8,
+    Grey: u8,
     RGB: ColorRGB,
 
     const Self = @This();
