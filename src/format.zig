@@ -12,6 +12,20 @@ pub const Csi = Esc ++ "[";
 
 pub const Reset = Csi ++ "0m";
 
+const font_style_codes = std.ComptimeStringMap([]const u8, .{
+    .{ "bold", "1" },
+    .{ "dim", "2" },
+    .{ "italic", "3" },
+    .{ "underline", "4" },
+    .{ "slowblink", "5" },
+    .{ "rapidblink", "6" },
+    .{ "reverse", "7" },
+    .{ "hidden", "8" },
+    .{ "crossedout", "9" },
+    .{ "fraktur", "20" },
+    .{ "overline", "53" },
+});
+
 /// Update the current style of the ANSI terminal
 pub fn updateStyle(writer: anytype, new: Style, old: ?Style) !void {
     // TODO: intelligent, "delta" style update
@@ -22,96 +36,16 @@ pub fn updateStyle(writer: anytype, new: Style, old: ?Style) !void {
     var written_something = false;
 
     // Font styles
-    if (new.font_style.bold) {
-        written_something = true;
-        try writer.writeAll("1");
-    }
-    if (new.font_style.dim) {
-        if (written_something) {
-            try writer.writeAll(";");
-        } else {
-            written_something = true;
+    inline for (std.meta.fields(FontStyle)) |field| {
+        if (@field(new.font_style, field.name)) {
+            comptime const code = font_style_codes.get(field.name).?;
+            if (written_something) {
+                try writer.writeAll(";");
+            } else {
+                written_something = true;
+            }
+            try writer.writeAll(code);
         }
-        try writer.writeAll("2");
-    }
-    if (new.font_style.italic) {
-        if (written_something) {
-            try writer.writeAll(";");
-        } else {
-            written_something = true;
-        }
-        try writer.writeAll("3");
-    }
-    if (new.font_style.underline) {
-        if (written_something) {
-            try writer.writeAll(";");
-        } else {
-            written_something = true;
-        }
-        try writer.writeAll("4");
-    }
-
-    if (new.font_style.slowblink) {
-        if (written_something) {
-            try writer.writeAll(";");
-        } else {
-            written_something = true;
-        }
-        try writer.writeAll("5");
-    }
-
-    if (new.font_style.rapidblink) {
-        if (written_something) {
-            try writer.writeAll(";");
-        } else {
-            written_something = true;
-        }
-        try writer.writeAll("6");
-    }
-
-    if (new.font_style.reverse) {
-        if (written_something) {
-            try writer.writeAll(";");
-        } else {
-            written_something = true;
-        }
-        try writer.writeAll("7");
-    }
-
-    if (new.font_style.hidden) {
-        if (written_something) {
-            try writer.writeAll(";");
-        } else {
-            written_something = true;
-        }
-        try writer.writeAll("8");
-    }
-
-    if (new.font_style.crossedout) {
-        if (written_something) {
-            try writer.writeAll(";");
-        } else {
-            written_something = true;
-        }
-        try writer.writeAll("9");
-    }
-
-    if (new.font_style.fraktur) {
-        if (written_something) {
-            try writer.writeAll(";");
-        } else {
-            written_something = true;
-        }
-        try writer.writeAll("20");
-    }
-
-    if (new.font_style.overline) {
-        if (written_something) {
-            try writer.writeAll(";");
-        } else {
-            written_something = true;
-        }
-        try writer.writeAll("53");
     }
 
     // Foreground color
@@ -169,6 +103,20 @@ test "same style, no update" {
     try updateStyle(fixed_buf_stream.writer(), Style{}, Style{});
 
     const expected = "";
+    const actual = fixed_buf_stream.getWritten();
+
+    testing.expectEqualSlices(u8, expected, actual);
+}
+
+test "bold style" {
+    var buf: [1024]u8 = undefined;
+    var fixed_buf_stream = fixedBufferStream(&buf);
+
+    try updateStyle(fixed_buf_stream.writer(), Style{
+        .font_style = FontStyle.bold,
+    }, Style{});
+
+    const expected = "\x1B[1m";
     const actual = fixed_buf_stream.getWritten();
 
     testing.expectEqualSlices(u8, expected, actual);
