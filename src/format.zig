@@ -30,6 +30,7 @@ const font_style_codes = std.ComptimeStringMap([]const u8, .{
 pub fn updateStyle(writer: anytype, new: Style, old: ?Style) !void {
     // TODO: intelligent, "delta" style update
     if (old) |sty| if (new.eql(sty)) return;
+    if (new.isDefault()) return try resetStyle(writer);
 
     // Start the escape sequence
     try writer.writeAll(Csi);
