@@ -16,6 +16,7 @@ pub const ColorRGB = struct {
 };
 
 pub const Color = union(enum) {
+    Default,
     Black,
     Red,
     Green,
@@ -118,6 +119,12 @@ pub const FontStyle = packed struct {
     pub fn subsetOf(self: Self, other: Self) bool {
         return self.toU11() & other.toU11() == self.toU11();
     }
+
+    /// Returns this font style with all attributes removed that are
+    /// contained in other
+    pub fn without(self: Self, other: Self) Self {
+        return fromU11(self.toU11() & ~other.toU11());
+    }
 };
 
 test "FontStyle bits" {
@@ -149,9 +156,24 @@ test "FontStyle subsetOf" {
     expect(!bold_and_italic.subsetOf(default));
 }
 
+test "FontStyle without" {
+    const default = FontStyle{};
+    const bold = FontStyle.bold;
+    const italic = FontStyle.italic;
+    const bold_and_italic = FontStyle{ .bold = true, .italic = true };
+
+    expectEqual(default, default.without(default));
+    expectEqual(bold, bold.without(default));
+    expectEqual(default, bold.without(bold));
+    expectEqual(bold, bold.without(italic));
+    expectEqual(bold, bold_and_italic.without(italic));
+    expectEqual(italic, bold_and_italic.without(bold));
+    expectEqual(default, bold_and_italic.without(bold_and_italic));
+}
+
 pub const Style = struct {
-    foreground: ?Color = null,
-    background: ?Color = null,
+    foreground: Color = .Default,
+    background: Color = .Default,
     font_style: FontStyle = FontStyle{},
 
     const Self = @This();

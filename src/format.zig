@@ -27,18 +27,24 @@ const font_style_codes = std.ComptimeStringMap([]const u8, .{
 });
 
 /// Update the current style of the ANSI terminal
+/// Tries to use as little escape codes as possible
 pub fn updateStyle(writer: anytype, new: Style, old: ?Style) !void {
-    // TODO: intelligent, "delta" style update
     if (old) |sty| if (new.eql(sty)) return;
     if (new.isDefault()) return try resetStyle(writer);
+
+    // A reset is required if the new font style has attributes not
+    // present in the old style or if the old style is not known
+    const reset_required = if (old) |sty| !sty.font_style.subsetOf(new.font_style) else true;
+    if (reset_required) try resetStyle(writer);
 
     // Start the escape sequence
     try writer.writeAll(Csi);
     var written_something = false;
 
     // Font styles
+    const write_styles = if (reset_required) new.font_style else new.font_style.without(old.?.font_style);
     inline for (std.meta.fields(FontStyle)) |field| {
-        if (@field(new.font_style, field.name)) {
+        if (@field(write_styles, field.name)) {
             comptime const code = font_style_codes.get(field.name).?;
             if (written_something) {
                 try writer.writeAll(";");
@@ -50,14 +56,15 @@ pub fn updateStyle(writer: anytype, new: Style, old: ?Style) !void {
     }
 
     // Foreground color
-    if (new.foreground) |clr| {
+    if (reset_required and new.foreground != .Default or old != null and !old.?.foreground.eql(new.foreground)) {
         if (written_something) {
             try writer.writeAll(";");
         } else {
             written_something = true;
         }
 
-        switch (clr) {
+        switch (new.foreground) {
+            .Default => try writer.writeAll("39"),
             .Black => try writer.writeAll("30"),
             .Red => try writer.writeAll("31"),
             .Green => try writer.writeAll("32"),
@@ -72,14 +79,15 @@ pub fn updateStyle(writer: anytype, new: Style, old: ?Style) !void {
     }
 
     // Background color
-    if (new.background) |clr| {
+    if (reset_required and new.background != .Default or old != null and !old.?.background.eql(new.background)) {
         if (written_something) {
             try writer.writeAll(";");
         } else {
             written_something = true;
         }
 
-        switch (clr) {
+        switch (new.background) {
+            .Default => try writer.writeAll("49"),
             .Black => try writer.writeAll("40"),
             .Red => try writer.writeAll("41"),
             .Green => try writer.writeAll("42"),
@@ -97,13 +105,54 @@ pub fn updateStyle(writer: anytype, new: Style, old: ?Style) !void {
     try writer.writeAll("m");
 }
 
-test "same style, no update" {
+test "same style default, no update" {
     var buf: [1024]u8 = undefined;
     var fixed_buf_stream = fixedBufferStream(&buf);
 
     try updateStyle(fixed_buf_stream.writer(), Style{}, Style{});
 
     const expected = "";
+    const actual = fixed_buf_stream.getWritten();
+
+    testing.expectEqualSlices(u8, expected, actual);
+}
+
+test "same style non-default, no update" {
+    var buf: [1024]u8 = undefined;
+    var fixed_buf_stream = fixedBufferStream(&buf);
+
+    const sty = Style{
+        .foreground = Color.Green,
+    };
+    try updateStyle(fixed_buf_stream.writer(), sty, sty);
+
+    const expected = "";
+    const actual = fixed_buf_stream.getWritten();
+
+    testing.expectEqualSlices(u8, expected, actual);
+}
+
+test "reset to default, old null" {
+    var buf: [1024]u8 = undefined;
+    var fixed_buf_stream = fixedBufferStream(&buf);
+
+    try updateStyle(fixed_buf_stream.writer(), Style{}, null);
+
+    const expected = "\x1B[0m";
+    const actual = fixed_buf_stream.getWritten();
+
+    testing.expectEqualSlices(u8, expected, actual);
+}
+
+test "reset to default, old non-null" {
+    var buf: [1024]u8 = undefined;
+    var fixed_buf_stream = fixedBufferStream(&buf);
+
+    try updateStyle(fixed_buf_stream.writer(), Style{}, Style{
+        .font_style = FontStyle.bold,
+    });
+
+    const expected = "\x1B[0m";
     const actual = fixed_buf_stream.getWritten();
 
     testing.expectEqualSlices(u8, expected, actual);
@@ -118,6 +167,83 @@ test "bold style" {
     }, Style{});
 
     const expected = "\x1B[1m";
+    const actual = fixed_buf_stream.getWritten();
+
+    testing.expectEqualSlices(u8, expected, actual);
+}
+
+test "add bold style" {
+    var buf: [1024]u8 = undefined;
+    var fixed_buf_stream = fixedBufferStream(&buf);
+
+    try updateStyle(fixed_buf_stream.writer(), Style{
+        .font_style = FontStyle{ .bold = true, .italic = true },
+    }, Style{
+        .font_style = FontStyle.italic,
+    });
+
+    const expected = "\x1B[1m";
+    const actual = fixed_buf_stream.getWritten();
+
+    testing.expectEqualSlices(u8, expected, actual);
+}
+
+test "reset required font style" {
+    var buf: [1024]u8 = undefined;
+    var fixed_buf_stream = fixedBufferStream(&buf);
+
+    try updateStyle(fixed_buf_stream.writer(), Style{
+        .font_style = FontStyle.bold,
+    }, Style{
+        .font_style = FontStyle{ .bold = true, .underline = true },
+    });
+
+    const expected = "\x1B[0m\x1B[1m";
+    const actual = fixed_buf_stream.getWritten();
+
+    testing.expectEqualSlices(u8, expected, actual);
+}
+
+test "reset required color style" {
+    var buf: [1024]u8 = undefined;
+    var fixed_buf_stream = fixedBufferStream(&buf);
+
+    try updateStyle(fixed_buf_stream.writer(), Style{
+        .foreground = Color.Red,
+    }, null);
+
+    const expected = "\x1B[0m\x1B[31m";
+    const actual = fixed_buf_stream.getWritten();
+
+    testing.expectEqualSlices(u8, expected, actual);
+}
+
+test "no reset required color style" {
+    var buf: [1024]u8 = undefined;
+    var fixed_buf_stream = fixedBufferStream(&buf);
+
+    try updateStyle(fixed_buf_stream.writer(), Style{
+        .foreground = Color.Red,
+    }, Style{});
+
+    const expected = "\x1B[31m";
+    const actual = fixed_buf_stream.getWritten();
+
+    testing.expectEqualSlices(u8, expected, actual);
+}
+
+test "no reset required add color style" {
+    var buf: [1024]u8 = undefined;
+    var fixed_buf_stream = fixedBufferStream(&buf);
+
+    try updateStyle(fixed_buf_stream.writer(), Style{
+        .foreground = Color.Red,
+        .background = Color.Magenta,
+    }, Style{
+        .background = Color.Magenta,
+    });
+
+    const expected = "\x1B[31m";
     const actual = fixed_buf_stream.getWritten();
 
     testing.expectEqualSlices(u8, expected, actual);

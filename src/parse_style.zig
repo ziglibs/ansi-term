@@ -27,8 +27,8 @@ pub fn parseStyle(code: []const u8) ?Style {
     }
 
     var font_style = FontStyle{};
-    var foreground: ?Color = null;
-    var background: ?Color = null;
+    var foreground: Color = .Default;
+    var background: Color = .Default;
 
     var state = ParseState.Parse8;
     var red: u8 = 0;
@@ -61,7 +61,7 @@ pub fn parseStyle(code: []const u8) ?Style {
                     36 => foreground = Color.Cyan,
                     37 => foreground = Color.White,
                     38 => state = ParseState.ParseFgNon8,
-                    39 => foreground = null,
+                    39 => foreground = Color.Default,
                     40 => background = Color.Black,
                     41 => background = Color.Red,
                     42 => background = Color.Green,
@@ -71,7 +71,7 @@ pub fn parseStyle(code: []const u8) ?Style {
                     46 => background = Color.Cyan,
                     47 => background = Color.White,
                     48 => state = ParseState.ParseBgNon8,
-                    49 => background = null,
+                    49 => background = Color.Default,
                     53 => font_style.overline = true,
                     else => {
                         return null;
