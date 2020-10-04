@@ -1,6 +1,6 @@
-# zig-ansi-term
+# ansi-term
 
-![CI](https://github.com/ziglibs/zig-ansi-term/workflows/CI/badge.svg)
+![CI](https://github.com/ziglibs/ansi-term/workflows/CI/badge.svg)
 
 Zig library for dealing with ANSI Terminals (escape codes, styles, etc.)
 
