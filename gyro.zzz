@@ -1,0 +1,14 @@
+pkgs:
+  ansi-term:
+    version: 0.0.0
+    description: "Zig library for dealing with ANSI terminals"
+    license: MIT
+    source_url: "https://github.com/ziglibs/ansi-term"
+    tags:
+      ansi-terminal
+
+    files:
+      README.md
+      LICENSE
+      build.zig
+      src/*.zig
