@@ -98,7 +98,7 @@ pub fn updateStyle(writer: anytype, new: Style, old: ?Style) !void {
             .Cyan => try writer.writeAll("46"),
             .White => try writer.writeAll("47"),
             .Fixed => |fixed| try writer.print("48;5;{}", .{fixed}),
-            .Grey => |grey| try writer.print("38;2;{};{};{}", .{ grey, grey, grey }),
+            .Grey => |grey| try writer.print("48;2;{};{};{}", .{ grey, grey, grey }),
             .RGB => |rgb| try writer.print("48;2;{};{};{}", .{ rgb.r, rgb.g, rgb.b }),
         }
     }
@@ -280,3 +280,18 @@ test "Grey foreground color" {
 
     testing.expectEqualSlices(u8, expected, actual);
 }
+
+test "Grey background color" {
+    var buf: [1024]u8 = undefined;
+    var fixed_buf_stream = fixedBufferStream(&buf);
+    var new_style = Style{};
+    new_style.background = Color{ .Grey = 1 };
+
+    try updateStyle(fixed_buf_stream.writer(), new_style, Style{});
+
+    const expected = "\x1B[48;2;1;1;1m";
+    const actual = fixed_buf_stream.getWritten();
+
+    testing.expectEqualSlices(u8, expected, actual);
+}
+
