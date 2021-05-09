@@ -278,7 +278,7 @@ test "Grey foreground color" {
     const expected = "\x1B[38;2;1;1;1m";
     const actual = fixed_buf_stream.getWritten();
 
-    testing.expectEqualSlices(u8, expected, actual);
+    try testing.expectEqualSlices(u8, expected, actual);
 }
 
 test "Grey background color" {
@@ -292,6 +292,6 @@ test "Grey background color" {
     const expected = "\x1B[48;2;1;1;1m";
     const actual = fixed_buf_stream.getWritten();
 
-    testing.expectEqualSlices(u8, expected, actual);
+    try testing.expectEqualSlices(u8, expected, actual);
 }
 
