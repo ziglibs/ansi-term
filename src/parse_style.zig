@@ -154,9 +154,9 @@ pub fn parseStyle(code: []const u8) ?Style {
 }
 
 test "parse empty style" {
-    expectEqual(@as(?Style, null), parseStyle(""));
-    expectEqual(@as(?Style, null), parseStyle("0"));
-    expectEqual(@as(?Style, null), parseStyle("00"));
+    try expectEqual(@as(?Style, null), parseStyle(""));
+    try expectEqual(@as(?Style, null), parseStyle("0"));
+    try expectEqual(@as(?Style, null), parseStyle("00"));
 }
 
 test "parse bold style" {
@@ -165,7 +165,7 @@ test "parse bold style" {
         .font_style = FontStyle.bold,
     };
 
-    expectEqual(@as(?Style, expected), actual);
+    try expectEqual(@as(?Style, expected), actual);
 }
 
 test "parse yellow style" {
@@ -176,7 +176,7 @@ test "parse yellow style" {
         .font_style = FontStyle{},
     };
 
-    expectEqual(@as(?Style, expected), actual);
+    try expectEqual(@as(?Style, expected), actual);
 }
 
 test "parse some fixed color" {
@@ -187,7 +187,7 @@ test "parse some fixed color" {
         .font_style = FontStyle.bold,
     };
 
-    expectEqual(@as(?Style, expected), actual);
+    try expectEqual(@as(?Style, expected), actual);
 }
 
 test "parse some rgb color" {
@@ -198,10 +198,10 @@ test "parse some rgb color" {
         .font_style = FontStyle.bold,
     };
 
-    expectEqual(@as(?Style, expected), actual);
+    try expectEqual(@as(?Style, expected), actual);
 }
 
 test "parse wrong rgb color" {
     const actual = parseStyle("38;2;123");
-    expectEqual(@as(?Style, null), actual);
+    try expectEqual(@as(?Style, null), actual);
 }

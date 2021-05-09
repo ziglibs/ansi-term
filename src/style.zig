@@ -129,12 +129,12 @@ pub const FontStyle = packed struct {
 };
 
 test "FontStyle bits" {
-    expectEqual(@as(u11, 0), (FontStyle{}).toU11());
-    expectEqual(@as(u11, 1), (FontStyle.bold).toU11());
-    expectEqual(@as(u11, 1 << 2), (FontStyle.italic).toU11());
-    expectEqual(@as(u11, 1 << 2) | 1, (FontStyle{ .bold = true, .italic = true }).toU11());
-    expectEqual(FontStyle{}, FontStyle.fromU11((FontStyle{}).toU11()));
-    expectEqual(FontStyle.bold, FontStyle.fromU11((FontStyle.bold).toU11()));
+    try expectEqual(@as(u11, 0), (FontStyle{}).toU11());
+    try expectEqual(@as(u11, 1), (FontStyle.bold).toU11());
+    try expectEqual(@as(u11, 1 << 2), (FontStyle.italic).toU11());
+    try expectEqual(@as(u11, 1 << 2) | 1, (FontStyle{ .bold = true, .italic = true }).toU11());
+    try expectEqual(FontStyle{}, FontStyle.fromU11((FontStyle{}).toU11()));
+    try expectEqual(FontStyle.bold, FontStyle.fromU11((FontStyle.bold).toU11()));
 }
 
 test "FontStyle subsetOf" {
@@ -143,18 +143,18 @@ test "FontStyle subsetOf" {
     const italic = FontStyle.italic;
     const bold_and_italic = FontStyle{ .bold = true, .italic = true };
 
-    expect(default.subsetOf(default));
-    expect(default.subsetOf(bold));
-    expect(bold.subsetOf(bold));
-    expect(!bold.subsetOf(default));
-    expect(!bold.subsetOf(italic));
-    expect(default.subsetOf(bold_and_italic));
-    expect(bold.subsetOf(bold_and_italic));
-    expect(italic.subsetOf(bold_and_italic));
-    expect(bold_and_italic.subsetOf(bold_and_italic));
-    expect(!bold_and_italic.subsetOf(bold));
-    expect(!bold_and_italic.subsetOf(italic));
-    expect(!bold_and_italic.subsetOf(default));
+    try expect(default.subsetOf(default));
+    try expect(default.subsetOf(bold));
+    try expect(bold.subsetOf(bold));
+    try expect(!bold.subsetOf(default));
+    try expect(!bold.subsetOf(italic));
+    try expect(default.subsetOf(bold_and_italic));
+    try expect(bold.subsetOf(bold_and_italic));
+    try expect(italic.subsetOf(bold_and_italic));
+    try expect(bold_and_italic.subsetOf(bold_and_italic));
+    try expect(!bold_and_italic.subsetOf(bold));
+    try expect(!bold_and_italic.subsetOf(italic));
+    try expect(!bold_and_italic.subsetOf(default));
 }
 
 test "FontStyle without" {
@@ -163,13 +163,13 @@ test "FontStyle without" {
     const italic = FontStyle.italic;
     const bold_and_italic = FontStyle{ .bold = true, .italic = true };
 
-    expectEqual(default, default.without(default));
-    expectEqual(bold, bold.without(default));
-    expectEqual(default, bold.without(bold));
-    expectEqual(bold, bold.without(italic));
-    expectEqual(bold, bold_and_italic.without(italic));
-    expectEqual(italic, bold_and_italic.without(bold));
-    expectEqual(default, bold_and_italic.without(bold_and_italic));
+    try expectEqual(default, default.without(default));
+    try expectEqual(bold, bold.without(default));
+    try expectEqual(default, bold.without(bold));
+    try expectEqual(bold, bold.without(italic));
+    try expectEqual(bold, bold_and_italic.without(italic));
+    try expectEqual(italic, bold_and_italic.without(bold));
+    try expectEqual(default, bold_and_italic.without(bold_and_italic));
 }
 
 pub const Style = struct {
@@ -206,13 +206,13 @@ test "style equality" {
         .foreground = Color.Red,
     };
 
-    expect(a.isDefault());
+    try expect(a.isDefault());
 
-    expect(a.eql(a));
-    expect(b.eql(b));
-    expect(c.eql(c));
+    try expect(a.eql(a));
+    try expect(b.eql(b));
+    try expect(c.eql(c));
 
-    expect(!a.eql(b));
-    expect(!b.eql(a));
-    expect(!a.eql(c));
+    try expect(!a.eql(b));
+    try expect(!b.eql(a));
+    try expect(!a.eql(c));
 }

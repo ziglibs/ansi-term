@@ -116,7 +116,7 @@ test "same style default, no update" {
     const expected = "";
     const actual = fixed_buf_stream.getWritten();
 
-    testing.expectEqualSlices(u8, expected, actual);
+    try testing.expectEqualSlices(u8, expected, actual);
 }
 
 test "same style non-default, no update" {
@@ -131,7 +131,7 @@ test "same style non-default, no update" {
     const expected = "";
     const actual = fixed_buf_stream.getWritten();
 
-    testing.expectEqualSlices(u8, expected, actual);
+    try testing.expectEqualSlices(u8, expected, actual);
 }
 
 test "reset to default, old null" {
@@ -143,7 +143,7 @@ test "reset to default, old null" {
     const expected = "\x1B[0m";
     const actual = fixed_buf_stream.getWritten();
 
-    testing.expectEqualSlices(u8, expected, actual);
+    try testing.expectEqualSlices(u8, expected, actual);
 }
 
 test "reset to default, old non-null" {
@@ -157,7 +157,7 @@ test "reset to default, old non-null" {
     const expected = "\x1B[0m";
     const actual = fixed_buf_stream.getWritten();
 
-    testing.expectEqualSlices(u8, expected, actual);
+    try testing.expectEqualSlices(u8, expected, actual);
 }
 
 test "bold style" {
@@ -171,7 +171,7 @@ test "bold style" {
     const expected = "\x1B[1m";
     const actual = fixed_buf_stream.getWritten();
 
-    testing.expectEqualSlices(u8, expected, actual);
+    try testing.expectEqualSlices(u8, expected, actual);
 }
 
 test "add bold style" {
@@ -187,7 +187,7 @@ test "add bold style" {
     const expected = "\x1B[1m";
     const actual = fixed_buf_stream.getWritten();
 
-    testing.expectEqualSlices(u8, expected, actual);
+    try testing.expectEqualSlices(u8, expected, actual);
 }
 
 test "reset required font style" {
@@ -203,7 +203,7 @@ test "reset required font style" {
     const expected = "\x1B[0m\x1B[1m";
     const actual = fixed_buf_stream.getWritten();
 
-    testing.expectEqualSlices(u8, expected, actual);
+    try testing.expectEqualSlices(u8, expected, actual);
 }
 
 test "reset required color style" {
@@ -217,7 +217,7 @@ test "reset required color style" {
     const expected = "\x1B[0m\x1B[31m";
     const actual = fixed_buf_stream.getWritten();
 
-    testing.expectEqualSlices(u8, expected, actual);
+    try testing.expectEqualSlices(u8, expected, actual);
 }
 
 test "no reset required color style" {
@@ -231,7 +231,7 @@ test "no reset required color style" {
     const expected = "\x1B[31m";
     const actual = fixed_buf_stream.getWritten();
 
-    testing.expectEqualSlices(u8, expected, actual);
+    try testing.expectEqualSlices(u8, expected, actual);
 }
 
 test "no reset required add color style" {
@@ -248,7 +248,7 @@ test "no reset required add color style" {
     const expected = "\x1B[31m";
     const actual = fixed_buf_stream.getWritten();
 
-    testing.expectEqualSlices(u8, expected, actual);
+    try testing.expectEqualSlices(u8, expected, actual);
 }
 
 pub fn resetStyle(writer: anytype) !void {
@@ -264,7 +264,7 @@ test "reset style" {
     const expected = "\x1B[0m";
     const actual = fixed_buf_stream.getWritten();
 
-    testing.expectEqualSlices(u8, expected, actual);
+    try testing.expectEqualSlices(u8, expected, actual);
 }
 
 test "Grey foreground color" {
