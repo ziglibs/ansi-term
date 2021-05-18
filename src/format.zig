@@ -7,10 +7,10 @@ const Style = style.Style;
 const FontStyle = style.FontStyle;
 const Color = style.Color;
 
-pub const Esc = "\x1B";
-pub const Csi = Esc ++ "[";
+const esc = "\x1B";
+const csi = esc ++ "[";
 
-pub const Reset = Csi ++ "0m";
+const reset = csi ++ "0m";
 
 const font_style_codes = std.ComptimeStringMap([]const u8, .{
     .{ "bold", "1" },
@@ -27,7 +27,15 @@ const font_style_codes = std.ComptimeStringMap([]const u8, .{
 });
 
 /// Update the current style of the ANSI terminal
-/// Tries to use as little escape codes as possible
+///
+/// Optionally accepts the previous style active on the
+/// terminal. Using this information, the function will update only
+/// the attributes which are new in order to minimize the amount
+/// written.
+///
+/// Tries to use as little bytes as necessary. Use this function if
+/// you want to optimize for smallest amount of transmitted bytes
+/// instead of computation speed.
 pub fn updateStyle(writer: anytype, new: Style, old: ?Style) !void {
     if (old) |sty| if (new.eql(sty)) return;
     if (new.isDefault()) return try resetStyle(writer);
@@ -38,7 +46,7 @@ pub fn updateStyle(writer: anytype, new: Style, old: ?Style) !void {
     if (reset_required) try resetStyle(writer);
 
     // Start the escape sequence
-    try writer.writeAll(Csi);
+    try writer.writeAll(csi);
     var written_something = false;
 
     // Font styles
@@ -252,7 +260,7 @@ test "no reset required add color style" {
 }
 
 pub fn resetStyle(writer: anytype) !void {
-    try writer.writeAll(Csi ++ "0m");
+    try writer.writeAll(reset);
 }
 
 test "reset style" {

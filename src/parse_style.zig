@@ -8,19 +8,21 @@ const FontStyle = style.FontStyle;
 const Color = style.Color;
 
 const ParseState = enum {
-    Parse8,
-    ParseFgNon8,
-    ParseFg256,
-    ParseFgRed,
-    ParseFgGreen,
-    ParseFgBlue,
-    ParseBgNon8,
-    ParseBg256,
-    ParseBgRed,
-    ParseBgGreen,
-    ParseBgBlue,
+    parse_8,
+    parse_fg_non_8,
+    parse_fg_256,
+    parse_fg_red,
+    parse_fg_green,
+    parse_fg_blue,
+    parse_bg_non_8,
+    parse_bg_256,
+    parse_bg_red,
+    parse_bg_green,
+    parse_bg_blue,
 };
 
+/// Parses an ANSI escape sequence into a Style. Returns null when the
+/// string does not represent a valid style description
 pub fn parseStyle(code: []const u8) ?Style {
     if (code.len == 0 or std.mem.eql(u8, code, "0") or std.mem.eql(u8, code, "00")) {
         return null;
@@ -30,7 +32,7 @@ pub fn parseStyle(code: []const u8) ?Style {
     var foreground: Color = .Default;
     var background: Color = .Default;
 
-    var state = ParseState.Parse8;
+    var state = ParseState.parse_8;
     var red: u8 = 0;
     var green: u8 = 0;
 
@@ -39,7 +41,7 @@ pub fn parseStyle(code: []const u8) ?Style {
         const part = std.fmt.parseInt(u8, str, 10) catch return null;
 
         switch (state) {
-            .Parse8 => {
+            .parse_8 => {
                 switch (part) {
                     0 => font_style = FontStyle{},
                     1 => font_style.bold = true,
@@ -60,7 +62,7 @@ pub fn parseStyle(code: []const u8) ?Style {
                     35 => foreground = Color.Magenta,
                     36 => foreground = Color.Cyan,
                     37 => foreground = Color.White,
-                    38 => state = ParseState.ParseFgNon8,
+                    38 => state = ParseState.parse_fg_non_8,
                     39 => foreground = Color.Default,
                     40 => background = Color.Black,
                     41 => background = Color.Red,
@@ -70,7 +72,7 @@ pub fn parseStyle(code: []const u8) ?Style {
                     45 => background = Color.Magenta,
                     46 => background = Color.Cyan,
                     47 => background = Color.White,
-                    48 => state = ParseState.ParseBgNon8,
+                    48 => state = ParseState.parse_bg_non_8,
                     49 => background = Color.Default,
                     53 => font_style.overline = true,
                     else => {
@@ -78,28 +80,28 @@ pub fn parseStyle(code: []const u8) ?Style {
                     },
                 }
             },
-            .ParseFgNon8 => {
+            .parse_fg_non_8 => {
                 switch (part) {
-                    5 => state = ParseState.ParseFg256,
-                    2 => state = ParseState.ParseFgRed,
+                    5 => state = ParseState.parse_fg_256,
+                    2 => state = ParseState.parse_fg_red,
                     else => {
                         return null;
                     },
                 }
             },
-            .ParseFg256 => {
+            .parse_fg_256 => {
                 foreground = Color{ .Fixed = part };
-                state = ParseState.Parse8;
+                state = ParseState.parse_8;
             },
-            .ParseFgRed => {
+            .parse_fg_red => {
                 red = part;
-                state = ParseState.ParseFgGreen;
+                state = ParseState.parse_fg_green;
             },
-            .ParseFgGreen => {
+            .parse_fg_green => {
                 green = part;
-                state = ParseState.ParseFgBlue;
+                state = ParseState.parse_fg_blue;
             },
-            .ParseFgBlue => {
+            .parse_fg_blue => {
                 foreground = Color{
                     .RGB = .{
                         .r = red,
@@ -107,30 +109,30 @@ pub fn parseStyle(code: []const u8) ?Style {
                         .b = part,
                     },
                 };
-                state = ParseState.Parse8;
+                state = ParseState.parse_8;
             },
-            .ParseBgNon8 => {
+            .parse_bg_non_8 => {
                 switch (part) {
-                    5 => state = ParseState.ParseBg256,
-                    2 => state = ParseState.ParseBgRed,
+                    5 => state = ParseState.parse_bg_256,
+                    2 => state = ParseState.parse_bg_red,
                     else => {
                         return null;
                     },
                 }
             },
-            .ParseBg256 => {
+            .parse_bg_256 => {
                 background = Color{ .Fixed = part };
-                state = ParseState.Parse8;
+                state = ParseState.parse_8;
             },
-            .ParseBgRed => {
+            .parse_bg_red => {
                 red = part;
-                state = ParseState.ParseBgGreen;
+                state = ParseState.parse_bg_green;
             },
-            .ParseBgGreen => {
+            .parse_bg_green => {
                 green = part;
-                state = ParseState.ParseBgBlue;
+                state = ParseState.parse_bg_blue;
             },
-            .ParseBgBlue => {
+            .parse_bg_blue => {
                 background = Color{
                     .RGB = .{
                         .r = red,
@@ -138,12 +140,12 @@ pub fn parseStyle(code: []const u8) ?Style {
                         .b = part,
                     },
                 };
-                state = ParseState.Parse8;
+                state = ParseState.parse_8;
             },
         }
     }
 
-    if (state != ParseState.Parse8)
+    if (state != ParseState.parse_8)
         return null;
 
     return Style{
