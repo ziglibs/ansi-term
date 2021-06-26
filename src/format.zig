@@ -53,7 +53,7 @@ pub fn updateStyle(writer: anytype, new: Style, old: ?Style) !void {
     const write_styles = if (reset_required) new.font_style else new.font_style.without(old.?.font_style);
     inline for (std.meta.fields(FontStyle)) |field| {
         if (@field(write_styles, field.name)) {
-            comptime const code = font_style_codes.get(field.name).?;
+            const code = font_style_codes.get(field.name).?;
             if (written_something) {
                 try writer.writeAll(";");
             } else {
