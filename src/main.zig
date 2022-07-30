@@ -1,5 +1,10 @@
-pub usingnamespace @import("cursor.zig");
-pub usingnamespace @import("clear.zig");
-pub usingnamespace @import("style.zig");
-pub usingnamespace @import("format.zig");
-pub usingnamespace @import("parse_style.zig");
+const std = @import("std");
+
+pub const cursor = @import("cursor.zig");
+pub const clear = @import("clear.zig");
+pub const style = @import("style.zig");
+pub const format = @import("format.zig");
+
+test {
+    std.testing.refAllDeclsRecursive(@This());
+}

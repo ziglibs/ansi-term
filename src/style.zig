@@ -195,6 +195,8 @@ pub const Style = struct {
     pub fn isDefault(self: Self) bool {
         return eql(self, Self{});
     }
+
+    pub const parse = @import("parse_style.zig").parseStyle;
 };
 
 test "style equality" {
