@@ -4,6 +4,11 @@ pub fn build(b: *Builder) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
+    b.addModule(.{
+        .name = "ansi-term",
+        .source_file = .{ .path = "src/main.zig" },
+    });
+
     var main_tests = b.addTest(.{
         .name = "main test suite",
         .root_source_file = .{ .path = "src/main.zig" },
