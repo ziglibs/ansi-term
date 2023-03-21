@@ -1,7 +1,22 @@
 const std = @import("std");
-
+const testing = std.testing;
+const fixedBufferStream = std.io.fixedBufferStream;
 const esc = "\x1B";
 const csi = esc ++ "[";
+
+pub const CursorMode = enum(u8) {
+    BLINKING_BLOCK = 1,
+    BLOCK,
+    BLINKING_UNDERSCORE,
+    UNDERSCORE,
+    BLINKING_I_BEAM,
+    I_BEAM,
+};
+
+pub fn setCursorMode(writer: anytype, mode: CursorMode) !void {
+    const modeNumber = @enumToInt(mode);
+    try writer.print(csi ++ "{d} q", .{modeNumber});
+}
 
 pub fn hideCursor(writer: anytype) !void {
     try writer.writeAll(csi ++ "?25l");
@@ -62,3 +77,28 @@ pub fn scrollUp(writer: anytype, lines: usize) !void {
 pub fn scrollDown(writer: anytype, lines: usize) !void {
     try writer.print(csi ++ "{}T", .{lines});
 }
+
+test "test cursor mode BLINKING_UNDERSCORE" {
+    var buf: [1024]u8 = undefined;
+    var fixed_buf_stream = fixedBufferStream(&buf);
+
+    try setCursorMode(fixed_buf_stream.writer(), .BLINKING_UNDERSCORE);
+    // the space is needed
+    const expected = csi ++ "3 q";
+    const actual = fixed_buf_stream.getWritten();
+
+    try testing.expectEqualSlices(u8, expected, actual);
+}
+
+test "test cursor mode BLINKING_I_BEAM" {
+    var buf: [1024]u8 = undefined;
+    var fixed_buf_stream = fixedBufferStream(&buf);
+
+    try setCursorMode(fixed_buf_stream.writer(), .BLINKING_I_BEAM);
+    // the space is needed
+    const expected = csi ++ "5 q";
+    const actual = fixed_buf_stream.getWritten();
+
+    try testing.expectEqualSlices(u8, expected, actual);
+}
+
