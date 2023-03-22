@@ -5,12 +5,12 @@ const esc = "\x1B";
 const csi = esc ++ "[";
 
 pub const CursorMode = enum(u8) {
-    BLINKING_BLOCK = 1,
-    BLOCK,
-    BLINKING_UNDERSCORE,
-    UNDERSCORE,
-    BLINKING_I_BEAM,
-    I_BEAM,
+    blinking_block = 1,
+    block,
+    blinking_underscore,
+    underscore,
+    blinking_I_beam,
+    I_beam,
 };
 
 pub fn setCursorMode(writer: anytype, mode: CursorMode) !void {
@@ -82,7 +82,7 @@ test "test cursor mode BLINKING_UNDERSCORE" {
     var buf: [1024]u8 = undefined;
     var fixed_buf_stream = fixedBufferStream(&buf);
 
-    try setCursorMode(fixed_buf_stream.writer(), .BLINKING_UNDERSCORE);
+    try setCursorMode(fixed_buf_stream.writer(), .blinking_underscore);
     // the space is needed
     const expected = csi ++ "3 q";
     const actual = fixed_buf_stream.getWritten();
@@ -94,11 +94,10 @@ test "test cursor mode BLINKING_I_BEAM" {
     var buf: [1024]u8 = undefined;
     var fixed_buf_stream = fixedBufferStream(&buf);
 
-    try setCursorMode(fixed_buf_stream.writer(), .BLINKING_I_BEAM);
+    try setCursorMode(fixed_buf_stream.writer(), .blinking_I_beam);
     // the space is needed
     const expected = csi ++ "5 q";
     const actual = fixed_buf_stream.getWritten();
 
     try testing.expectEqualSlices(u8, expected, actual);
 }
-
