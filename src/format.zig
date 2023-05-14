@@ -302,4 +302,3 @@ test "Grey background color" {
 
     try testing.expectEqualSlices(u8, expected, actual);
 }
-
