@@ -1,0 +1,47 @@
+name: Documentation
+
+on:
+  push:
+    branches: [master]
+
+  # Allow manually starting the workflow.
+  workflow_dispatch:
+
+# If two concurrent runs are started,
+# prefer the latest one.
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+
+  build:
+    name: Build docs website
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: goto-bus-stop/setup-zig@v1
+      with:
+        version: master
+    - name: Build
+      run: zig build docs
+    - name: Upload
+      uses: actions/upload-pages-artifact@v1
+      with:
+        path: "docs/"
+
+  publish:
+    name: Publish website
+    runs-on: ubuntu-latest
+    needs: build  # wait for build to finish
+    permissions:
+      # Request sufficient permissions to publish the website.
+      pages: write
+      id-token: write
+    steps:
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v1
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
