@@ -14,7 +14,7 @@ pub const CursorMode = enum(u8) {
 };
 
 pub fn setCursorMode(writer: anytype, mode: CursorMode) !void {
-    const modeNumber = @enumToInt(mode);
+    const modeNumber = @intFromEnum(mode);
     try writer.print(csi ++ "{d} q", .{modeNumber});
 }
 

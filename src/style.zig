@@ -96,11 +96,11 @@ pub const FontStyle = packed struct {
     };
 
     pub fn toU11(self: Self) u11 {
-        return @bitCast(u11, self);
+        return @bitCast(self);
     }
 
     pub fn fromU11(bits: u11) Self {
-        return @bitCast(Self, bits);
+        return @bitCast(bits);
     }
 
     /// Returns true iff this font style contains no attributes
