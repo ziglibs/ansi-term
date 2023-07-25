@@ -28,7 +28,7 @@ jobs:
     - name: Upload
       uses: actions/upload-pages-artifact@v1
       with:
-        path: "docs/"
+        path: "zig-out/docs/"
 
   publish:
     name: Publish website
