@@ -19,11 +19,12 @@ pub fn build(b: *Builder) void {
     const test_step = b.step("test", "Run library tests");
     test_step.dependOn(&run_main_tests.step);
 
-    const docs = b.addTest(.{
-        .root_source_file = .{ .path = "src/main.zig" },
+    const install_docs = b.addInstallDirectory(.{
+        .source_dir = main_tests.getEmittedDocs(),
+        .install_dir = .prefix,
+        .install_subdir = "docs",
     });
-    docs.emit_docs = .emit;
 
     const docs_step = b.step("docs", "Generate documentation");
-    docs_step.dependOn(&docs.step);
+    docs_step.dependOn(&install_docs.step);
 }
