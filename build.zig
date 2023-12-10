@@ -3,6 +3,16 @@ const Builder = @import("std").build.Builder;
 pub fn build(b: *Builder) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
+    // This is the library that can be imported by other programs
+    const lib = b.addStaticLibrary(.{
+        .name = "ansi-term",
+        // In this case the main source file is merely a path, however, in more
+        // complicated build scripts, this could be a generated file.
+        .root_source_file = .{ .path = "src/main.zig" },
+        .target = target,
+        .optimize = optimize,
+    });
+    b.installArtifact(lib);
 
     _ = b.addModule("ansi-term", .{
         .source_file = .{ .path = "src/main.zig" },
