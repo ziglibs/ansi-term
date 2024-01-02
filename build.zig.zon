@@ -2,10 +2,6 @@
     .name = "ansi-term",
     .version = "0.0.0",
     .paths = .{
-        "build.zig",
-        "build.zig.zon",
         "src",
-        "LICENSE",
-        "README.md",
     },
 }
