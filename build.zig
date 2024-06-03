@@ -5,7 +5,7 @@ pub fn build(b: *Build) void {
     const optimize = b.standardOptimizeOption(.{});
 
     _ = b.addModule("ansi-term", .{
-        .root_source_file = .{ .path = "src/main.zig" },
+        .source_file = .{ .path = "src/main.zig" },
     });
 
     var main_tests = b.addTest(.{
