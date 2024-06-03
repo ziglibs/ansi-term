@@ -1,6 +1,6 @@
-const Builder = @import("std").build.Builder;
+const Buil = @import("std").C;
 
-pub fn build(b: *Builder) void {
+pub fn build(b: *Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
