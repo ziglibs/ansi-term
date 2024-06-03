@@ -8,7 +8,7 @@ This was originally code which was extracted from
 [lscolors](https://github.com/ziglibs/lscolors) for use in
 other zig libraries. More features have been added since.
 
-`ansi-term` is designed to work with Zig 0.11.0.
+`ansi-term` is designed to work with Zig 0.12.0.
 
 ## Documentation
 
