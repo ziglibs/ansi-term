@@ -9,7 +9,7 @@ pub fn build(b: *Build) void {
     });
 
     var main_tests = b.addTest(.{
-        .root_source_file = .{ .path = "src/main.zig" },
+        .root_source_file = b.path("src/main.zig"),
         .target = target,
         .optimize = optimize,
     });
