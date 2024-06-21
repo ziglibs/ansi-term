@@ -12,7 +12,7 @@ const csi = esc ++ "[";
 
 const reset = csi ++ "0m";
 
-const font_style_codes = std.ComptimeStringMap([]const u8, .{
+const font_style_codes = std.StaticStringMap([]const u8).initComptime(.{
     .{ "bold", "1" },
     .{ "dim", "2" },
     .{ "italic", "3" },
