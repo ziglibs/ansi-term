@@ -37,6 +37,7 @@ const font_style_codes = std.StaticStringMap([]const u8).initComptime(.{
 /// you want to optimize for smallest amount of transmitted bytes
 /// instead of computation speed.
 pub fn updateStyle(writer: anytype, new: Style, old: ?Style) !void {
+    if (!writer.supportsAnsiEscapeCodes()) return error.AnsiEscapeCodesUnsupported;
     if (old) |sty| if (new.eql(sty)) return;
     if (new.isDefault()) return try resetStyle(writer);
 
@@ -260,6 +261,7 @@ test "no reset required add color style" {
 }
 
 pub fn resetStyle(writer: anytype) !void {
+    if (!writer.supportsAnsiEscapeCodes()) return error.AnsiEscapeCodesUnsupported;
     try writer.writeAll(reset);
 }
 
