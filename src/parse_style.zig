@@ -36,7 +36,7 @@ pub fn parseStyle(code: []const u8) ?Style {
     var red: u8 = 0;
     var green: u8 = 0;
 
-    var iter = std.mem.split(u8, code, ";");
+    var iter = std.mem.splitScalar(u8, code, ';');
     while (iter.next()) |str| {
         const part = std.fmt.parseInt(u8, str, 10) catch return null;
 
@@ -164,7 +164,7 @@ test "parse empty style" {
 test "parse bold style" {
     const actual = parseStyle("01");
     const expected = Style{
-        .font_style = FontStyle.bold,
+        .font_style = .{ .bold = true },
     };
 
     try expectEqual(@as(?Style, expected), actual);
@@ -175,7 +175,7 @@ test "parse yellow style" {
     const expected = Style{
         .foreground = Color.Yellow,
 
-        .font_style = FontStyle{},
+        .font_style = .{},
     };
 
     try expectEqual(@as(?Style, expected), actual);
@@ -186,7 +186,7 @@ test "parse some fixed color" {
     const expected = Style{
         .foreground = Color{ .Fixed = 220 },
 
-        .font_style = FontStyle.bold,
+        .font_style = .{ .bold = true },
     };
 
     try expectEqual(@as(?Style, expected), actual);
@@ -197,7 +197,7 @@ test "parse some rgb color" {
     const expected = Style{
         .foreground = Color{ .RGB = .{ .r = 123, .g = 123, .b = 123 } },
 
-        .font_style = FontStyle.bold,
+        .font_style = .{ .bold = true },
     };
 
     try expectEqual(@as(?Style, expected), actual);

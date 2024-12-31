@@ -51,50 +51,6 @@ pub const FontStyle = packed struct {
 
     const Self = @This();
 
-    pub const bold = Self{
-        .bold = true,
-    };
-
-    pub const dim = Self{
-        .dim = true,
-    };
-
-    pub const italic = Self{
-        .italic = true,
-    };
-
-    pub const underline = Self{
-        .underline = true,
-    };
-
-    pub const slowblink = Self{
-        .slowblink = true,
-    };
-
-    pub const rapidblink = Self{
-        .rapidblink = true,
-    };
-
-    pub const reverse = Self{
-        .reverse = true,
-    };
-
-    pub const hidden = Self{
-        .hidden = true,
-    };
-
-    pub const crossedout = Self{
-        .crossedout = true,
-    };
-
-    pub const fraktur = Self{
-        .fraktur = true,
-    };
-
-    pub const overline = Self{
-        .overline = true,
-    };
-
     pub fn toU11(self: Self) u11 {
         return @bitCast(self);
     }
@@ -130,17 +86,17 @@ pub const FontStyle = packed struct {
 
 test "FontStyle bits" {
     try expectEqual(@as(u11, 0), (FontStyle{}).toU11());
-    try expectEqual(@as(u11, 1), (FontStyle.bold).toU11());
-    try expectEqual(@as(u11, 1 << 2), (FontStyle.italic).toU11());
+    try expectEqual(@as(u11, 1), (FontStyle{ .bold = true }).toU11());
+    try expectEqual(@as(u11, 1 << 2), (FontStyle{ .italic = true }).toU11());
     try expectEqual(@as(u11, 1 << 2) | 1, (FontStyle{ .bold = true, .italic = true }).toU11());
     try expectEqual(FontStyle{}, FontStyle.fromU11((FontStyle{}).toU11()));
-    try expectEqual(FontStyle.bold, FontStyle.fromU11((FontStyle.bold).toU11()));
+    try expectEqual(FontStyle{ .bold = true }, FontStyle.fromU11((FontStyle{ .bold = true }).toU11()));
 }
 
 test "FontStyle subsetOf" {
     const default = FontStyle{};
-    const bold = FontStyle.bold;
-    const italic = FontStyle.italic;
+    const bold = FontStyle{ .bold = true };
+    const italic = FontStyle{ .italic = true };
     const bold_and_italic = FontStyle{ .bold = true, .italic = true };
 
     try expect(default.subsetOf(default));
@@ -159,8 +115,8 @@ test "FontStyle subsetOf" {
 
 test "FontStyle without" {
     const default = FontStyle{};
-    const bold = FontStyle.bold;
-    const italic = FontStyle.italic;
+    const bold = FontStyle{ .bold = true };
+    const italic = FontStyle{ .italic = true };
     const bold_and_italic = FontStyle{ .bold = true, .italic = true };
 
     try expectEqual(default, default.without(default));
@@ -202,10 +158,10 @@ pub const Style = struct {
 test "style equality" {
     const a = Style{};
     const b = Style{
-        .font_style = FontStyle.bold,
+        .font_style = .{ .bold = true },
     };
     const c = Style{
-        .foreground = Color.Red,
+        .foreground = .Red,
     };
 
     try expect(a.isDefault());

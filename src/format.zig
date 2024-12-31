@@ -159,7 +159,7 @@ test "reset to default, old non-null" {
     var fixed_buf_stream = fixedBufferStream(&buf);
 
     try updateStyle(fixed_buf_stream.writer(), Style{}, Style{
-        .font_style = FontStyle.bold,
+        .font_style = .{ .bold = true },
     });
 
     const expected = "\x1B[0m";
@@ -173,7 +173,7 @@ test "bold style" {
     var fixed_buf_stream = fixedBufferStream(&buf);
 
     try updateStyle(fixed_buf_stream.writer(), Style{
-        .font_style = FontStyle.bold,
+        .font_style = .{ .bold = true },
     }, Style{});
 
     const expected = "\x1B[1m";
@@ -187,9 +187,9 @@ test "add bold style" {
     var fixed_buf_stream = fixedBufferStream(&buf);
 
     try updateStyle(fixed_buf_stream.writer(), Style{
-        .font_style = FontStyle{ .bold = true, .italic = true },
+        .font_style = .{ .bold = true, .italic = true },
     }, Style{
-        .font_style = FontStyle.italic,
+        .font_style = .{ .italic = true },
     });
 
     const expected = "\x1B[1m";
@@ -203,9 +203,9 @@ test "reset required font style" {
     var fixed_buf_stream = fixedBufferStream(&buf);
 
     try updateStyle(fixed_buf_stream.writer(), Style{
-        .font_style = FontStyle.bold,
+        .font_style = .{ .bold = true },
     }, Style{
-        .font_style = FontStyle{ .bold = true, .underline = true },
+        .font_style = .{ .bold = true, .underline = true },
     });
 
     const expected = "\x1B[0m\x1B[1m";
