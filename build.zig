@@ -4,7 +4,7 @@ pub fn build(b: *Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
-    _ = b.addModule("ansi-term", .{
+    _ = b.addModule("ansi_term", .{
         .root_source_file = b.path("src/main.zig"),
     });
 
