@@ -1,6 +1,6 @@
 .{
     .name = .ansi_term,
-    .version = "0.0.0",
+    .version = "0.1.0",
     .fingerprint = 0xa403c76fcb80b6fd,
 
     .paths = .{
