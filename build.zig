@@ -4,15 +4,13 @@ pub fn build(b: *Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
-    _ = b.addModule("ansi-term", .{
-        .root_source_file = b.path("src/main.zig"),
-    });
-
-    var main_tests = b.addTest(.{
+    const module = b.addModule("ansi-term", .{
         .root_source_file = b.path("src/main.zig"),
         .target = target,
         .optimize = optimize,
     });
+
+    const main_tests = b.addTest(.{ .root_module = module });
 
     const run_main_tests = b.addRunArtifact(main_tests);
 
