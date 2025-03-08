@@ -9,6 +9,14 @@ pub fn enableLineWrap(writer: anytype) !void {
     try writer.writeAll(csi ++ "?7h");
 }
 
+pub fn saveScreen(writer: anytype) !void {
+    try writer.writeAll(csi ++ "?47h");
+}
+
+pub fn restoreScreen(writer: anytype) !void {
+    try writer.writeAll(csi ++ "?47l");
+}
+
 pub fn enterAlternateScreen(writer: anytype) !void {
     try writer.writeAll(csi ++ "?1049h");
 }
