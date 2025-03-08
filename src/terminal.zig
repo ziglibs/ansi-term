@@ -22,7 +22,7 @@ pub fn setSize(writer: anytype, columns: u16, rows: u16) !void {
 }
 
 pub fn setTitle(writer: anytype, title: []const u8) !void {
-    try writer.print(esc ++ "]0;{s}\x07", .{title.len});
+    try writer.print(esc ++ "]0;{s}\x07", .{title});
 }
 
 pub fn beginSynchronizedUpdate(writer: anytype) !void {
