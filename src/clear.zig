@@ -1,5 +1,3 @@
-const std = @import("std");
-
 const esc = "\x1B";
 const csi = esc ++ "[";
 
